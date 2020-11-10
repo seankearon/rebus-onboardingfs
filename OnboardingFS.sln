@@ -4,6 +4,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "EntryPointAPI", "EntryPoint
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "OnboardingProcessor", "OnboardingProcessor\OnboardingProcessor.fsproj", "{03DE90A6-2042-4110-8D51-A02BA35B06A5}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "OnboardingMessages", "OnboardingMessages\OnboardingMessages.fsproj", "{7E451749-2ACC-4E42-9B77-EC47850FE7B2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{03DE90A6-2042-4110-8D51-A02BA35B06A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{03DE90A6-2042-4110-8D51-A02BA35B06A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{03DE90A6-2042-4110-8D51-A02BA35B06A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E451749-2ACC-4E42-9B77-EC47850FE7B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E451749-2ACC-4E42-9B77-EC47850FE7B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E451749-2ACC-4E42-9B77-EC47850FE7B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E451749-2ACC-4E42-9B77-EC47850FE7B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

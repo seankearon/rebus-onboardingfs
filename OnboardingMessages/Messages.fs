@@ -1,5 +1,11 @@
 ﻿namespace OnboardingMessages
 
+type OnboardNewCustomer =
+    {
+        Name: string
+        Email: string
+    }
+
 type CreateCustomerAccount =
     {
         Name: string
