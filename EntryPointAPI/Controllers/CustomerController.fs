@@ -10,7 +10,7 @@ type CustomerController (bus : IBus) =
     inherit ControllerBase()
     let _bus = bus
 
-    [<Route("newcustomer/{name}/{email}")>]
+    [<Route("newcustomer")>]
     [<HttpPost>]
     member this.NewCustomer(name: string, email: string) = task {
         do! _bus.Send(OnboardNewCustomer.For name email)
