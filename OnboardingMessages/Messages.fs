@@ -5,6 +5,7 @@ type OnboardNewCustomer =
         Name: string
         Email: string
     }
+    static member For name email = { Name = name; Email = email }
 
 type CreateCustomerAccount =
     {

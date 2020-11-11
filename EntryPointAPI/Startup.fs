@@ -1,26 +1,34 @@
 namespace EntryPointAPI
 
-open System
-open System.Collections.Generic
-open System.Linq
-open System.Threading.Tasks
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
-open Microsoft.AspNetCore.HttpsPolicy;
-open Microsoft.AspNetCore.Mvc
 open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.Extensions.Hosting
 
+module Lib =
+    open Rebus.Config
+    open OnboardingMessages
+    open Rebus.Retry.Simple
+    open Rebus.Routing.TypeBased
+    open Rebus.Transport.FileSystem
+
+    let configure (rebus: RebusConfigurer) =
+           rebus.Logging   (fun l -> l.Console())                                                  |> ignore
+           rebus.Routing   (fun r -> r.TypeBased().Map<OnboardNewCustomer>("MainQueue") |> ignore) |> ignore
+           rebus.Transport (fun t -> t.UseFileSystemAsOneWayClient("c:/rebus-advent"))             |> ignore
+           rebus.Options   (fun t -> t.SimpleRetryStrategy(errorQueueAddress = "ErrorQueue"))      |> ignore
+           rebus
+
+open Rebus.ServiceProvider
+
 type Startup(configuration: IConfiguration) =
     member _.Configuration = configuration
 
-    // This method gets called by the runtime. Use this method to add services to the container.
     member _.ConfigureServices(services: IServiceCollection) =
-        // Add framework services.
-        services.AddControllers() |> ignore
+        services.AddControllers()        |> ignore
+        services.AddRebus(Lib.configure) |> ignore
 
-    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
     member _.Configure(app: IApplicationBuilder, env: IWebHostEnvironment) =
         if (env.IsDevelopment()) then
             app.UseDeveloperExceptionPage() |> ignore

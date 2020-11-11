@@ -1,14 +1,18 @@
 ﻿namespace EntryPointAPI.Controllers
 
 open Microsoft.AspNetCore.Mvc
-open Microsoft.Extensions.Logging
+open Rebus.Bus
+open FSharp.Control.Tasks.V2.ContextInsensitive
+open OnboardingMessages
 
 [<ApiController>]
-type CustomerController (logger : ILogger<CustomerController>) =
+type CustomerController (bus : IBus) =
     inherit ControllerBase()
-    let _logger = logger
+    let _bus = bus
 
+    [<Route("newcustomer/{name}/{email}")>]
     [<HttpPost>]
-    [<Route("newcustomer")>]
-    member _.Get() =
-        Ok()
+    member this.NewCustomer(name: string, email: string) = task {
+        do! _bus.Send(OnboardNewCustomer.For name email)
+        return this.Ok()
+    }
