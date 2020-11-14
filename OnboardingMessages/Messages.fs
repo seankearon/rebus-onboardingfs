@@ -12,24 +12,35 @@ type CreateCustomerAccount =
         Name: string
         Email: string
     }
+    static member For name email = { Name = name; Email = email }
 
 type CustomerAccountCreated =
     {
         Email: string
-        CustomerId: int
+        AccountId: int
     }
+    static member For email accountId = { Email = email; AccountId = accountId }
 
 type SendWelcomeEmail =
     {
-        CustomerId: int
+        AccountId: int
     }
+    static member For accountId = { AccountId = accountId }
+
+type WelcomeEmailSent =
+    {
+        AccountId: int
+    }
+    static member For accountId = { AccountId = accountId }
 
 type ScheduleSalesCall =
     {
-        CustomerId: int
+        AccountId: int
     }
+    static member For accountId = { AccountId = accountId }
 
-type CustomerOnboarded =
+type SalesCallScheduled =
     {
-        CustomerId: int
+        AccountId: int
     }
+    static member For accountId = { AccountId = accountId }
