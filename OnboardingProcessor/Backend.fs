@@ -20,7 +20,6 @@ let configureRebus (rebus: RebusConfigurer) =
     rebus.Routing       (fun r -> r.TypeBased().MapAssemblyOf<OnboardNewCustomer>("MainQueue") |> ignore) |> ignore
     rebus.Transport     (fun t -> t.UseFileSystem("c:/rebus-advent", "MainQueue") |> ignore)              |> ignore
     rebus.Options       (fun t -> t.SimpleRetryStrategy(errorQueueAddress = "ErrorQueue"))                |> ignore
-    rebus.Subscriptions (fun s -> s.UseJsonFile("c:/rebus-advent/subscriptions.json"))                    |> ignore
     rebus.Sagas         (fun s -> s.UseFilesystem("c:/rebus-advent/sagas"))                               |> ignore
     rebus
 
