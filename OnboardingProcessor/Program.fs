@@ -1,13 +1,15 @@
-﻿// Learn more about F# at http://docs.microsoft.com/dotnet/fsharp
-
-open System
-
-// Define a function to construct a message to print
-let from whom =
-    sprintf "from %s" whom
+﻿open System
+open OnboardingProcessor
+open Serilog
+open Topper
 
 [<EntryPoint>]
-let main argv =
-    let message = from "F#" // Call the function
-    printfn "Hello world %s" message
-    0 // return an integer exit code
+let main _ =
+    Log.Logger <- LoggerConfiguration()
+       .WriteTo.Console()
+       .CreateLogger()
+
+    let configuration = ServiceConfiguration().Add("OurBackendBus", fun () -> (new Backend() :> IDisposable))
+    ServiceHost.Run(configuration);
+
+    0
