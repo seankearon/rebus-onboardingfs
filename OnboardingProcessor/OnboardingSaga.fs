@@ -35,6 +35,10 @@ let CustomerEmail =
     let x = OnboardingSagaData()
     nameof x.CustomerEmail
 
+let SagaId =
+    let x = OnboardingSagaData()
+    nameof x.Id
+
 let AccountId =
     let x = OnboardingSagaData()
     nameof x.AccountId
@@ -48,14 +52,16 @@ type OnboardingSaga(b: IBus) =
         config.Correlate<CustomerAccountCreated> (Func<CustomerAccountCreated, obj>(fun m -> m.Email     :> obj), CustomerEmail)
         config.Correlate<WelcomeEmailSent>       (Func<WelcomeEmailSent,       obj>(fun m -> m.AccountId :> obj), AccountId)
         config.Correlate<SalesCallScheduled>     (Func<SalesCallScheduled,     obj>(fun m -> m.AccountId :> obj), AccountId)
+        config.Correlate<OnboardingOlaBreached>  (Func<OnboardingOlaBreached,  obj>(fun m -> m.SagaId    :> obj), SagaId)
 
     member this.TryComplete() =
         if this.Data.Completed() then
             Log.Information($"Onboarding completed for {this.Data.CustomerName}, {this.Data.CustomerEmail}, {this.Data.AccountId}.")
             this.MarkAsComplete()
 
-    // This is to allows access to IsNew from inside the interface sections below.
+    // This is to allows access to IsNew and MarkAsComplete from inside the interface sections below.
     member this.IsNew = base.IsNew
+    member this.MarkComplete() = base.MarkAsComplete()
 
     interface IAmInitiatedBy<OnboardNewCustomer> with
         member this.Handle(m: OnboardNewCustomer) =
@@ -67,6 +73,7 @@ type OnboardingSaga(b: IBus) =
                 this.Data.CustomerEmail <- m.Email
 
                 do! bus.Send(CreateCustomerAccount.For m.Name m.Email)
+                do! bus.Defer(TimeSpan.FromSeconds 5., OnboardingOlaBreached.For this.Data.Id)
 
                 this.TryComplete()
             } :> Task
@@ -99,6 +106,19 @@ type OnboardingSaga(b: IBus) =
                 Log.Information($"Sales call scheduled for {m.AccountId}.")
                 this.Data.SalesCallScheduled <- true
                 this.TryComplete()
+            } :> Task
+
+    interface IAmInitiatedBy<OnboardingOlaBreached> with
+        member this.Handle(m: OnboardingOlaBreached) =
+            task {
+                Log.Information($"ONBOARDING OLA BREACH PENDING FOR for saga {m.SagaId}.")
+                if this.Data.SalesCallScheduled then
+                    do! bus.Send(CancelSalesCall.For this.Data.AccountId)
+
+                do! bus.Send(NotifyServiceDesk.With $"Customer onboarding OLA breach pending for new customer {this.Data.CustomerName} with email {this.Data.CustomerEmail}.")
+
+                Log.Information($"Abandoning saga {this.Data.Id}.");
+                this.MarkComplete()
             } :> Task
 
 

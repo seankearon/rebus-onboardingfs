@@ -1,5 +1,7 @@
 ﻿namespace OnboardingMessages
 
+open System
+
 type OnboardNewCustomer =
     {
         Name: string
@@ -44,3 +46,21 @@ type SalesCallScheduled =
         AccountId: int
     }
     static member For accountId = { AccountId = accountId }
+
+type OnboardingOlaBreached =
+    {
+        SagaId: Guid
+    }
+    static member For sagaId = { SagaId = sagaId }
+
+type CancelSalesCall =
+    {
+        AccountId: int
+    }
+    static member For accountId = { AccountId = accountId }
+
+type NotifyServiceDesk =
+    {
+        Message: string
+    }
+    static member With message = { Message = message }

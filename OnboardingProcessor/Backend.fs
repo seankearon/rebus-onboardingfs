@@ -17,6 +17,7 @@ let configureRebus (rebus: RebusConfigurer) =
     rebus.Transport     (fun t -> t.UseFileSystem("c:/rebus-advent", "MainQueue") |> ignore)              |> ignore
     rebus.Options       (fun t -> t.SimpleRetryStrategy(errorQueueAddress = "ErrorQueue"))                |> ignore
     rebus.Sagas         (fun s -> s.UseFilesystem("c:/rebus-advent/sagas"))                               |> ignore
+    rebus.Timeouts      (fun s -> s.UseFileSystem("c:/rebus-advent/timeouts"))                            |> ignore
     rebus
 
 type Backend() =

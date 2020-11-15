@@ -28,7 +28,7 @@ type SendWelcomeEmailHandler(b: IBus) =
             task
                 {
                     Log.Information($"Sending welcome email for account {m.AccountId}.")
-                    do! Task.Delay(500) // Pretend we're doing something!
+                    do! Task.Delay(10000); // This delay will breach our OLA rules!
                     do! bus.Reply(WelcomeEmailSent.For m.AccountId)
                 } :> Task
 
@@ -42,4 +42,20 @@ type ScheduleSalesCallHandler(b: IBus) =
                     Log.Information($"Scheduling sales call for account {m.AccountId}.")
                     do! Task.Delay(500) // Pretend we're doing something!
                     do! bus.Reply(SalesCallScheduled.For m.AccountId)
+                } :> Task
+
+type CancelSalesCallHandler() =
+    interface IHandleMessages<CancelSalesCall> with
+        member x.Handle(m: CancelSalesCall) =
+            task
+                {
+                    Log.Information($"Cancelling sales call for account {m.AccountId}.")
+                } :> Task
+
+type NotifyServiceDeskHandler() =
+    interface IHandleMessages<NotifyServiceDesk> with
+        member x.Handle(m: NotifyServiceDesk) =
+            task
+                {
+                    Log.Information($"Notifying the service desk that: {m.Message}.")
                 } :> Task
