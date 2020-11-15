@@ -6,6 +6,7 @@ open OnboardingMessages
 open Rebus.Bus
 open Rebus.Sagas
 open FSharp.Control.Tasks.V2.ContextInsensitive
+open Serilog
 
 type OnboardingSagaData() =
     interface ISagaData with
@@ -49,7 +50,9 @@ type OnboardingSaga(b: IBus) =
         config.Correlate<SalesCallScheduled>     (Func<SalesCallScheduled,     obj>(fun m -> m.AccountId :> obj), AccountId)
 
     member this.TryComplete() =
-        if this.Data.Completed() then this.MarkAsComplete()
+        if this.Data.Completed() then
+            Log.Information($"Onboarding completed for {this.Data.CustomerName}, {this.Data.CustomerEmail}, {this.Data.AccountId}.")
+            this.MarkAsComplete()
 
     // This is to allows access to IsNew from inside the interface sections below.
     member this.IsNew = base.IsNew
@@ -58,6 +61,7 @@ type OnboardingSaga(b: IBus) =
         member this.Handle(m: OnboardNewCustomer) =
             task {
                 if not this.IsNew then return ()
+                Log.Information($"Beginning onboarding process for {m.Name}, {m.Email}.")
 
                 this.Data.CustomerName  <- m.Name
                 this.Data.CustomerEmail <- m.Email
@@ -70,6 +74,8 @@ type OnboardingSaga(b: IBus) =
     interface IAmInitiatedBy<CustomerAccountCreated> with
         member this.Handle(m: CustomerAccountCreated) =
             task {
+                Log.Information($"Customer account created for {m.Email} with ID {m.AccountId}.")
+
                 this.Data.AccountId      <- m.AccountId
                 this.Data.AccountCreated <- true
 
@@ -80,15 +86,17 @@ type OnboardingSaga(b: IBus) =
             } :> Task
 
     interface IAmInitiatedBy<WelcomeEmailSent> with
-        member this.Handle(_: WelcomeEmailSent) =
+        member this.Handle(m: WelcomeEmailSent) =
             task {
+                Log.Information($"Welcome email sent for {m.AccountId}.")
                 this.Data.WelcomeEmailSent <- true
                 this.TryComplete()
             } :> Task
 
     interface IAmInitiatedBy<SalesCallScheduled> with
-        member this.Handle(_: SalesCallScheduled) =
+        member this.Handle(m: SalesCallScheduled) =
             task {
+                Log.Information($"Sales call scheduled for {m.AccountId}.")
                 this.Data.SalesCallScheduled <- true
                 this.TryComplete()
             } :> Task
