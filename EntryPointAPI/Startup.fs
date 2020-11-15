@@ -13,10 +13,11 @@ module Lib =
     open Rebus.Routing.TypeBased
     open Rebus.Transport.FileSystem
 
-    let configure (rebus: RebusConfigurer) =
+    let configure (rebus: RebusConfigurer) (config: IConfiguration) =
+           let asbConnection = config.GetConnectionString("AzureServiceBusConnectionString")
            rebus.Logging   (fun l -> l.Console())                                                  |> ignore
            rebus.Routing   (fun r -> r.TypeBased().Map<OnboardNewCustomer>("MainQueue") |> ignore) |> ignore
-           rebus.Transport (fun t -> t.UseFileSystemAsOneWayClient("c:/rebus-advent"))             |> ignore
+           rebus.Transport (fun t -> t.UseFileSystemAsOneWayClient(asbConnection))                 |> ignore
            rebus.Options   (fun t -> t.SimpleRetryStrategy(errorQueueAddress = "ErrorQueue"))      |> ignore
            rebus
 
@@ -25,9 +26,9 @@ open Rebus.ServiceProvider
 type Startup(configuration: IConfiguration) =
     member _.Configuration = configuration
 
-    member _.ConfigureServices(services: IServiceCollection) =
+    member this.ConfigureServices(services: IServiceCollection) =
         services.AddControllers()        |> ignore
-        services.AddRebus(Lib.configure) |> ignore
+        services.AddRebus(fun rebus -> Lib.configure rebus this.Configuration) |> ignore
 
     member _.Configure(app: IApplicationBuilder, env: IWebHostEnvironment) =
         if (env.IsDevelopment()) then
