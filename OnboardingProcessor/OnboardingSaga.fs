@@ -112,9 +112,8 @@ type OnboardingSaga(b: IBus) =
         member this.Handle(m: OnboardingOlaBreached) =
             task {
                 Log.Information($"ONBOARDING OLA BREACH PENDING FOR for saga {m.SagaId}.")
-                if this.Data.SalesCallScheduled then
-                    do! bus.Send(CancelSalesCall.For this.Data.AccountId)
 
+                do! bus.Send(CancelSalesCall.For this.Data.AccountId)
                 do! bus.Send(NotifyServiceDesk.With $"Customer onboarding OLA breach pending for new customer {this.Data.CustomerName} with email {this.Data.CustomerEmail}.")
 
                 Log.Information($"Abandoning saga {this.Data.Id}.");

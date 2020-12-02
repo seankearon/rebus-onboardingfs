@@ -49,6 +49,7 @@ type CancelSalesCallHandler() =
         member x.Handle(m: CancelSalesCall) =
             task
                 {
+                    // Cancellation should allow for the call not having been placed as yet.
                     Log.Information($"Cancelling sales call for account {m.AccountId}.")
                 } :> Task
 
