@@ -28,19 +28,13 @@ type Backend(configuration: IConfiguration) =
     let mutable provider: ServiceProvider  = null
     let mutable bus: IBus  = null
     do
-        // This will be called by Rebus when the bus is created. 
-        let rebusOnCreated (x: IBus) =
-            task {
-                bus <- x
-            }
-            :> Task
-        
         let services = ServiceCollection()
-        services.AddRebus (configure=(configureRebus configuration), onCreated=rebusOnCreated) |> ignore
+        services.AddRebus (configure=(configureRebus configuration)) |> ignore
         services.AutoRegisterHandlersFromAssemblyOf<Backend>() |> ignore
 
         provider <- services.BuildServiceProvider()
         provider.StartRebus() |> ignore
+        bus <- provider.GetRequiredService<IBus>();
 
     interface IDisposable with
         member this.Dispose() =
